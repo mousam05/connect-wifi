@@ -1,0 +1,12 @@
+#!/bin/bash
+
+iwconfig wlp4s0 channel auto
+iwconfig wlp4s0 essid $1
+if [ -z "$1" ];then
+	exit
+fi
+
+ip addr flush dev wlp4s0
+ip route flush dev wlp4s0
+killall dhcpcd
+dhcpcd -1 -4  wlp4s0
