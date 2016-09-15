@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+ip link set wlp4s0 up
+iwlist wlp4s0 scan > slist
+cat slist | grep -Eo "Quality=[0-9]{1,}/[0-9]{1,}" | cut -d= -f2 | cut -d/ -f1 > qlist
+cat slist | grep ESSID | cut -d\" -f2 > elist
+paste -d" " qlist elist > list
+rm qlist elist slist
+SEL=`sort -r list | dmenu`
+if [ -z "$SEL" ]; then
+	rm list
+	exit
+fi
+SEL1=`echo $SEL | cut -d" " -f2`
+if [ `dmenu -p "Obtaining IP, press return to cancel"` ]; then
+	killall dhcpcd
+fi &
+wifi "$SEL1"
+rm list
+killall dmenu
